@@ -1,0 +1,51 @@
+on:
+  release:
+    types: [created]
+
+jobs:
+  release:
+    strategy:
+      matrix:
+        include:
+          - host: "ubuntu-latest"
+            platform: "linux-amd64"
+          - host: "macos-latest"
+            platform: "darwin-amd64"
+    runs-on: ${{ matrix.host }}
+    steps:
+      - uses: actions/checkout@master
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+
+      - name: Setup Node
+        uses: actions/setup-node@master
+        with:
+          node-version: 12
+      
+      - name: Build
+        run: deno compile --allow-all --output=./build/extension-redis main.ts
+
+      - name: Archive Release
+        uses: thedoctor0/zip-release@main
+        with:
+          type: "tar"
+          directory: build/
+          filename: ../redis-extension-${{ matrix.platform }}.tar.gz
+          path: extension*
+      - name: Get release
+        id: get_release
+        uses: bruceadams/get-release@v1.2.3
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      - name: upload artifact
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.get_release.outputs.upload_url }}
+          asset_path: redis-extension-${{ matrix.platform }}.tar.gz
+          asset_name: redis-extension-${{ matrix.platform }}.tar.gz
+          asset_content_type: application/gzip

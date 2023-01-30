@@ -1,0 +1,25 @@
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Test with Deno
+
+    steps:
+      - uses: actions/checkout@master
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+          
+      - name: Setup Node
+        uses: actions/setup-node@master
+        with:
+          node-version: 12
+
+      - name: Print deno version
+        run: deno --version
+
+      - name: Run tests
+        run: deno test

@@ -1,0 +1,8 @@
+{
+  "name": "bls-extension-redis",
+  "version": "1.0.0",
+  "tasks": {
+    "dev": "deno run --watch main.ts",
+    "build": "deno compile --allow-all --output=./build/extension-redis main.ts"
+  }
+}
